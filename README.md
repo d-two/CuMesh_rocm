@@ -17,9 +17,8 @@ Key features include:
 ### Build from Source
 
 ```bash
-git clone https://github.com/JeffreyXiang/CuMesh.git
-cd cumesh
-pip install . --no-build-isolation
+git clone https://github.com/JeffreyXiang/CuMesh.git --recursive
+pip install CuMesh --no-build-isolation
 ```
 
 
