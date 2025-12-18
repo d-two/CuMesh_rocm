@@ -372,6 +372,11 @@ void CuMesh::fill_holes(float max_hole_perimeter) {
     size_t L = this->num_bound_loops;
     size_t E = this->loop_boundaries.size;
 
+    // Early return if no boundary loops
+    if (L == 0 || E == 0) {
+        return;
+    }
+
     // Compute loop boundary lengths
     float* cu_loop_boundary_lengths;
     CUDA_CHECK(cudaMalloc(&cu_loop_boundary_lengths, E * sizeof(float)));

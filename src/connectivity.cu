@@ -515,6 +515,15 @@ void CuMesh::get_vertex_boundary_adjacency() {
     size_t V = this->vertices.size;
     size_t B = this->boundaries.size;
 
+    // Early return if no boundaries
+    if (B == 0) {
+        this->vert2bound_cnt.resize(V + 1);
+        this->vert2bound_cnt.zero();
+        this->vert2bound_offset.resize(V + 1);
+        this->vert2bound_offset.zero();
+        return;
+    }
+
     // get vertex adjacent boundary number
     this->vert2bound_cnt.resize(V + 1);
     this->vert2bound_cnt.zero();
@@ -783,6 +792,12 @@ void CuMesh::get_manifold_boundary_adjacency() {
     CUDA_CHECK(cudaFree(cu_num_manifold_boundary_verts));
     CUDA_CHECK(cudaFree(cu_vert_idx));
 
+    // Early return if no manifold boundary vertices
+    if (manifold_boundary_vert_count == 0) {
+        CUDA_CHECK(cudaFree(cu_manifold_vert_idx));
+        return;
+    }
+
     // set manifold_bound_adj
     this->manifold_bound_adj.resize(manifold_boundary_vert_count);
     set_manifold_bound_adj_kernel<<<(manifold_boundary_vert_count+BLOCK_SIZE-1)/BLOCK_SIZE, BLOCK_SIZE>>>(
@@ -844,6 +859,12 @@ void CuMesh::get_boundary_connected_components() {
     }
     size_t M = this->manifold_bound_adj.size;
     size_t B = this->boundaries.size;
+
+    // Early return if no boundaries
+    if (B == 0) {
+        this->num_bound_conn_comps = 0;
+        return;
+    }
 
     // Iterative Hook and Compress
     this->bound_conn_comp_ids.resize(B);
@@ -931,6 +952,12 @@ void CuMesh::get_boundary_loops() {
     }
 
     size_t B = this->boundaries.size;
+
+    // Early return if no boundaries or boundary components
+    if (B == 0 || this->num_bound_conn_comps == 0) {
+        this->num_bound_loops = 0;
+        return;
+    }
 
     // Check if boundary components are loops
     int* cu_is_bound_conn_comp_loop;
